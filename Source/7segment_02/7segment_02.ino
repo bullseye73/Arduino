@@ -136,7 +136,7 @@ void loop() {
   if (digitalRead(btn_pin_cnt) == LOW){
     Serial.print("down\t");
     Serial.println(nValue);
-    
+                                                                                               
     if(nValue < 10){
       displayNumber(nValue++);
       delay(250);
