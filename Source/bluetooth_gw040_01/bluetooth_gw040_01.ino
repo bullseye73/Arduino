@@ -1,10 +1,14 @@
-#include <SoftwareSerial.h>
-#include <stdlib.h>
+#include <SoftwareSerial.h> //serial lib
+#include <DHT11.h>    // temperature lib
 
 #define TEST_FLG 1
-#define BUFF_SIZE 256
 
-SoftwareSerial BTSerial(4, 5); // ㅅTX | RX
+#define BT_TX 4
+#define BT_RX 5
+#define PIN_TEMP 2
+
+SoftwareSerial BTSerial(BT_TX, BT_RX); // ㅅTX | RX
+DHT11 dht11(PIN_TEMP);  
 
 const int LEDPIN = A0;
 
@@ -32,7 +36,11 @@ void setup()
 
 void loop()
 {
+  float fRet = 0;
+  char strBuf[6]="";
+  
   if (BTSerial.available()){ // if BT sends something
+    
     char data = BTSerial.read();
     Serial.println(data);
 
@@ -47,24 +55,35 @@ void loop()
           digitalWrite(LEDPIN, LOW);
           break;
     }
+
   } else {
     //Serial.println("BTserial disavailable!");
   }
 
-  delay(100);
-/*        
-      switch (BluetoothData){
-        case '1':                                   // 받은 데이터가 A라면
-          digitalWrite(LEDPIN, HIGH);        // 해당 상태로 red led를 전환합니다.
-          break;
-        default: 
-          digitalWrite(LEDPIN, LOW);
-          break;
-      }
-    }
-    else {
-      //Serial.println("BTserial disavailable!");
-    }
-    delay(100);
-    */
+  fRet = localtemp();
+ 
+  if (fRet > 0){
+    dtostrf(fRet,5,2,strBuf);
+    BTSerial.write(strBuf);
+  }
+  delay(1000);
 }
+
+float localtemp(){
+    int err;
+    float temp, humi;
+    
+    if((err=dht11.read(humi, temp))==0) //온도, 습도 읽어와서 표시
+    {
+      Serial.print("temperature:");
+      Serial.println(temp);
+      return temp;
+    }
+    else                                //에러일 경우 처리
+    {
+      Serial.print("Error No :");
+      Serial.println(err);
+    }
+    return (float)err;
+}
+

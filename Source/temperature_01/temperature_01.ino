@@ -29,6 +29,6 @@ void loop()
     Serial.print(err);
     Serial.println();    
   }
-  delay(1000);                        //1초마다 측정
+  delay(100);                        //1초마다 측정
 }
  
